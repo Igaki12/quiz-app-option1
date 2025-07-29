@@ -272,13 +272,6 @@
                 
                 // 実際のリンク先ページが存在しない場合のフォールバック
                 // 本番環境では以下のコードは削除してください
-                setTimeout(() => {
-                    if (!document.querySelector('body').classList.contains('navigation-completed')) {
-                        // ページが存在しない場合の処理（開発時のみ）
-                        e.preventDefault();
-                        alert(`sample${buttonNumber}.htmlページに遷移します。\n※現在ページが作成されていないため、アラートで代替表示しています。`);
-                    }
-                }, 50);
             });
         });
 
