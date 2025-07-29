@@ -29,20 +29,60 @@
             background-image: radial-gradient(at 47% 33%, hsl(205.00, 90%, 95%) 0, transparent 59%), radial-gradient(at 82% 65%, hsl(215.00, 80%, 95%) 0, transparent 55%);
         }
         /* 選択肢のカスタムスタイル */
-        .option-btn.selected {
-            background-color: #3b82f6; /* 青 */
-            color: white;
+        .option-btn {
+            background: linear-gradient(145deg, #ffffff, #f8fafc);
+            border: 2px solid #e2e8f0;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+        .option-btn:hover {
+            background: linear-gradient(145deg, #f1f5f9, #e2e8f0);
             border-color: #3b82f6;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+            transform: translateY(-1px);
+        }
+        .option-btn.selected {
+            background: linear-gradient(145deg, #3b82f6, #2563eb);
+            color: white;
+            border-color: #1d4ed8;
+            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.3);
         }
         .option-btn.correct {
-            background-color: #22c55e; /* 緑 */
+            background: linear-gradient(145deg, #22c55e, #16a34a);
             color: white;
-            border-color: #22c55e;
+            border-color: #15803d;
+            box-shadow: 0 6px 20px rgba(34, 197, 94, 0.3);
         }
         .option-btn.incorrect {
-            background-color: #ef4444; /* 赤 */
+            background: linear-gradient(145deg, #ef4444, #dc2626);
             color: white;
-            border-color: #ef4444;
+            border-color: #b91c1c;
+            box-shadow: 0 6px 20px rgba(239, 68, 68, 0.3);
+        }
+        /* 解答ボタンのスタイル */
+        .answer-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+            transition: all 0.3s ease;
+        }
+        .answer-btn:hover:not(:disabled) {
+            background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%);
+            box-shadow: 0 12px 35px rgba(102, 126, 234, 0.4);
+            transform: translateY(-2px);
+        }
+        .answer-btn:disabled {
+            background: linear-gradient(135deg, #94a3b8 0%, #64748b 100%);
+            box-shadow: none;
+        }
+        /* スキップボタンのスタイル */
+        .skip-btn {
+            background: linear-gradient(145deg, #f1f5f9, #e2e8f0);
+            transition: all 0.3s ease;
+        }
+        .skip-btn:hover {
+            background: linear-gradient(145deg, #e2e8f0, #cbd5e1);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transform: translateY(-1px);
         }
     </style>
 </head>
@@ -70,10 +110,10 @@
         <!-- メインコンテンツ -->
         <main class="max-w-4xl mx-auto p-4 md:p-6">
             <div id="question-area" class="bg-white rounded-xl shadow-md p-5 md:p-8">
-                <!-- 問題番号と難易度 -->
+                <!-- 問題番号と正答率 -->
                 <div id="question-header" class="flex justify-between items-center mb-4">
                     <p id="question-number" class="text-xl font-bold text-blue-600"></p>
-                    <span id="question-difficulty" class="text-xs font-semibold bg-blue-100 text-blue-700 px-2 py-1 rounded-full"></span>
+                    <span id="question-answer-rate" class="text-xs font-semibold bg-gradient-to-r from-emerald-100 to-teal-100 text-emerald-700 px-3 py-1 rounded-full border border-emerald-200"></span>
                 </div>
 
                 <!-- 問題文 -->
@@ -86,11 +126,11 @@
 
                 <!-- 操作ボタン -->
                 <div class="flex flex-col sm:flex-row gap-4">
-                    <button id="skip-btn" class="w-full sm:w-1/2 flex-1 text-center py-3 px-4 rounded-lg font-semibold bg-slate-200 text-slate-700 hover:bg-slate-300 transition-all duration-200">
-                        スキップ
+                    <button id="skip-btn" class="skip-btn w-full sm:w-1/2 flex-1 text-center py-3 px-4 rounded-lg font-semibold text-slate-700 transition-all duration-200">
+                        スキップして次へ
                     </button>
-                    <button id="show-answer-btn" class="w-full sm:w-1/2 flex-1 text-center py-3 px-4 rounded-lg font-semibold text-white bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 shadow-md hover:shadow-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
-                        回答を表示
+                    <button id="show-answer-btn" class="answer-btn w-full sm:w-1/2 flex-1 text-center py-3 px-4 rounded-lg font-semibold text-white transition-all duration-200 disabled:cursor-not-allowed">
+                        解答する
                     </button>
                 </div>
             </div>
@@ -168,7 +208,7 @@
                 ],
                 correctAnswer: ["d"],
                 explanation: "本問は血糖降下薬の作用機序による分類を問う問題です。\n• a. チアゾリジン薬： PPARγを活性化し、インスリン抵抗性を改善します。インスリン分泌は促進しません。\n• b. ビグアナイド薬： 主に肝臓での糖新生を抑制し、インスリン抵抗性を改善します。インスリン分泌は促進しません。\n• c. α-グルコシダーゼ阻害薬： 腸管での二糖類の分解を阻害し、糖の吸収を遅らせます。インスリン分泌は促進しません。\n• d. DPP-4阻害薬： インクレチン（GLP-1など）の分解を阻害することで血中濃度を高め、血糖依存的にインスリン分泌を促進し、グルカゴン分泌を抑制します。これが正解です。\n• e. SGLT2阻害薬： 腎臓の近位尿細管でのブドウ糖再吸収を抑制し、尿中への糖排泄を促進します。インスリン非依存的に血糖を低下させます。",
-                difficulty: "国家試験より易しい",
+                answerRate: "92%",
                 isMultiSelect: false,
             },
             {
@@ -183,7 +223,7 @@
                 ],
                 correctAnswer: ["d"],
                 explanation: "ツベルクリン反応は、結核菌に対する細胞性免疫の有無を調べる皮内反応であり、Gell-Coombs分類における**IV型アレルギー（遅延型アレルギー）**の代表例です。抗原提示細胞によって提示された結核菌抗原に対し、感作T細胞が反応し、サイトカインを放出してマクロファージなどを活性化させることで、48〜72時間後に発赤・硬結がピークに達します。\n• I型（即時型）： IgEが関与。花粉症、気管支喘息、アナフィラキシーなど。\n• II型（細胞障害型）： IgG, IgMが自己の細胞表面抗原に結合し、補体や食細胞を介して細胞を破壊。自己免疫性溶血性貧血、血小板減少症など。\n• III型（免疫複合体型）： 抗原と抗体（IgG, IgM）の免疫複合体が組織に沈着し、補体を活性化して炎症を引き起こす。ループス腎炎、血清病など。",
-                difficulty: "国家試験より易しい",
+                answerRate: "88%",
                 isMultiSelect: false,
             },
             {
@@ -198,7 +238,7 @@
                 ],
                 correctAnswer: ["e"],
                 explanation: "協調運動（coordinated movement）は、複数の筋肉の活動を時間的・空間的に適切に統合し、滑らかで正確な運動を実現する機能です。この中枢は**小脳（Cerebellum）**です。小脳が障害されると、運動失調（ataxia）をきたし、測定障害（dysmetria）や協調運動反復不能（adiadochokinesis）などがみられます。\n• a. 前頭葉： 思考、意思決定、運動の企画（運動野）。\n• b. 頭頂葉： 感覚情報の統合（体性感覚野）。\n• c. 後頭葉： 視覚情報の処理（視覚野）。\n• d. 側頭葉： 聴覚、記憶、言語理解（ウェルニッケ野）。",
-                difficulty: "国家試験より易しい",
+                answerRate: "85%",
                 isMultiSelect: false,
             },
             {
@@ -213,14 +253,14 @@
                 ],
                 correctAnswer: ["a", "d"],
                 explanation: "食事のたびに繰り返す顎下部の腫脹と疼痛は、唾石症による唾液のうっ滞（唾仙痛）を強く示唆します。特に顎下腺に好発します。\n• a. 頸部CT: 唾石の存在部位や大きさ、顎下腺の腫脹や炎症の程度を評価するために非常に有用です。特に石灰化の程度が低い唾石の描出に優れます。\n• d. 口腔底の双手診: 口腔内からと口腔外からの両方から触診することで、顎下腺管内の唾石を触知できることがあります。基本的な診察手技として重要です。\n• b. IgG4測定やc. 抗SS-A抗体測定は、それぞれIgG4関連疾患やシェーグレン症候群といった自己免疫性唾液腺炎を疑う場合に行いますが、本症例のように食事と関連した間欠的な症状からは、まず唾石症を考えます。\n• e. 穿刺吸引細胞診は、腫瘍性病変が疑われる場合に行いますが、第一選択の検査ではありません。",
-                difficulty: "★★★☆☆ 国家試験レベル",
+                answerRate: "45%",
                 isMultiSelect: true,
             }
         ];
 
         // --- DOM要素の取得 ---
         const questionNumberEl = document.getElementById('question-number');
-        const questionDifficultyEl = document.getElementById('question-difficulty');
+        const questionAnswerRateEl = document.getElementById('question-answer-rate');
         const questionTextEl = document.getElementById('question-text');
         const optionsContainerEl = document.getElementById('options-container');
         const explanationContainerEl = document.getElementById('explanation-container');
@@ -276,15 +316,15 @@
             window.scrollTo(0, 0);
 
             // 問題情報を設定
-            questionNumberEl.textContent = `問題 ${question.id}`;
-            questionDifficultyEl.textContent = question.difficulty;
+            questionNumberEl.textContent = `${index + 1}問目/${questions.length}問中`;
+            questionAnswerRateEl.textContent = `正答率 ${question.answerRate}`;
             questionTextEl.textContent = question.questionText;
 
             // 選択肢をクリアして再生成
             optionsContainerEl.innerHTML = '';
             question.options.forEach(option => {
                 const button = document.createElement('button');
-                button.classList.add('option-btn', 'w-full', 'text-left', 'p-4', 'border-2', 'border-slate-300', 'rounded-lg', 'hover:border-blue-500', 'hover:bg-blue-50', 'transition-all', 'duration-200');
+                button.classList.add('option-btn', 'w-full', 'text-left', 'p-4', 'rounded-lg', 'transition-all', 'duration-300');
                 button.dataset.optionId = option.id;
                 
                 const label = document.createElement('span');
