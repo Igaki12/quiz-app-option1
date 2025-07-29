@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medteria 問題集テスト</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        /* ガラスモーフィズム用のカスタムクラス */
+        .glassmorphism {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        body {
+            font-family: 'Noto Sans JP', 'Inter', sans-serif;
+            background: #111827; /* ダークグレーの背景 */
+            color: #E5E7EB; /* 明るいグレーのテキスト */
+        }
+        /* スクロールバーのスタイル */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1F2937;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #4B5563;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #6B7280;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-200">
+
+    <!-- Header -->
+    <header class="glassmorphism sticky top-0 z-40 w-full shadow-md">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <h1 class="text-xl font-bold text-white">Medteria 問題集テスト</h1>
+            <div class="flex items-center space-x-4">
+                <button id="search-button" class="text-white hover:text-blue-400 transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                </button>
+                <button id="settings-button" class="text-white hover:text-blue-400 transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main id="questions-container" class="container mx-auto p-4 pb-24">
+        <!-- Questions will be dynamically inserted here -->
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-center p-4 text-sm text-gray-400 w-full">
+        <p>&copy; 2025 copyright Medteria All rights reserved.</p>
+    </footer>
+
+    <!-- Scroll to Bottom Button -->
+    <button id="scroll-to-bottom" class="fixed bottom-6 right-6 bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-full shadow-lg transition-opacity duration-300 opacity-0 z-50">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+        </svg>
+    </button>
+
+    <!-- Settings Modal -->
+    <div id="settings-modal" class="fixed inset-0 bg-black bg-opacity-70 flex justify-center items-center z-50 hidden">
+        <div class="glassmorphism rounded-2xl shadow-2xl p-8 w-11/12 md:w-1/3 text-white border-gray-700">
+            <h2 class="text-2xl font-bold mb-6 text-center">解答状況</h2>
+            <div class="space-y-4">
+                <p>現在の問題: <span id="current-q-modal">1</span> / <span id="total-q-modal"></span></p>
+                <p>正答率: <span id="accuracy-rate">-%</span></p>
+            </div>
+            <div class="mt-8 flex flex-col space-y-4">
+                <button class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg transition-transform transform hover:scale-105">保存して終了する</button>
+                <button id="close-settings-modal" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-3 px-4 rounded-lg transition-transform transform hover:scale-105">閉じる</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Feedback Modal -->
+    <div id="feedback-modal" class="fixed inset-0 bg-black bg-opacity-70 flex justify-center items-center z-50 hidden">
+        <div class="glassmorphism rounded-2xl shadow-2xl p-8 w-11/12 md:w-1/2 text-white border-gray-700">
+            <h2 class="text-2xl font-bold mb-6 text-center">修正依頼</h2>
+            <p class="mb-4">どの点について修正を依頼しますか？</p>
+            <div class="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-6">
+                <button class="feedback-option-btn">文章が難しすぎる</button>
+                <button class="feedback-option-btn">文章が長すぎる</button>
+                <button class="feedback-option-btn">文章が短すぎる</button>
+                <button class="feedback-option-btn">医学的に誤りがある</button>
+            </div>
+            <textarea id="other-feedback" class="w-full bg-gray-800 border border-gray-600 rounded-lg p-3 h-24 focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="その他の内容はこちらにご記入ください..."></textarea>
+            <div class="mt-8 flex justify-end space-x-4">
+                <button id="close-feedback-modal" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-6 rounded-lg transition">閉じる</button>
+                <button id="submit-feedback" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-6 rounded-lg transition">送信</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Success Message Toast -->
+    <div id="toast-message" class="fixed bottom-20 right-1/2 translate-x-1/2 bg-green-500 text-white py-2 px-6 rounded-full shadow-lg opacity-0 transition-opacity duration-300 z-50">
+        送信しました！
+    </div>
+
+
+    <script>
+        // --- DATA ---
+        const questions = [
+            {
+                id: 1,
+                difficulty: '国家試験より易しい',
+                questionText: 'インスリン分泌促進系に分類されるのはどれか。',
+                choices: [
+                    'a. チアゾリジン薬',
+                    'b. ビグアナイド薬',
+                    'c. α-グルコシダーゼ阻害薬',
+                    'd. DPP-4 (dipeptidyl peptidase-4) 阻害薬',
+                    'e. SGLT2 (sodium glucose cotransporter 2) 阻害薬'
+                ],
+                answer: 'd',
+                explanation: '本問は血糖降下薬の作用機序による分類を問う問題です。\n• a. チアゾリジン薬： PPARγを活性化し、インスリン抵抗性を改善します。インスリン分泌は促進しません。\n• b. ビグアナイド薬： 主に肝臓での糖新生を抑制し、インスリン抵抗性を改善します。インスリン分泌は促進しません。\n• c. α-グルコシダーゼ阻害薬： 腸管での二糖類の分解を阻害し、糖の吸収を遅らせます。インスリン分泌は促進しません。\n• d. DPP-4阻害薬： インクレチン（GLP-1など）の分解を阻害することで血中濃度を高め、血糖依存的にインスリン分泌を促進し、グルカゴン分泌を抑制します。これが正解です。\n• e. SGLT2阻害薬： 腎臓の近位尿細管でのブドウ糖再吸収を抑制し、尿中への糖排泄を促進します。インスリン非依存的に血糖を低下させます。'
+            },
+            {
+                id: 2,
+                difficulty: '国家試験より易しい',
+                questionText: 'ツベルクリン反応に関連する免疫反応はどれか。',
+                choices: [
+                    'a. I型アレルギー',
+                    'b. II型アレルギー',
+                    'c. III型アレルギー',
+                    'd. IV型アレルギー',
+                    'e. V型アレルギー'
+                ],
+                answer: 'd',
+                explanation: 'ツベルクリン反応は、結核菌に対する細胞性免疫の有無を調べる皮内反応であり、Gell-Coombs分類における**IV型アレルギー（遅延型アレルギー）**の代表例です。抗原提示細胞によって提示された結核菌抗原に対し、感作T細胞が反応し、サイトカインを放出してマクロファージなどを活性化させることで、48〜72時間後に発赤・硬結がピークに達します。\n• I型（即時型）： IgEが関与。花粉症、気管支喘息、アナフィラキシーなど。\n• II型（細胞障害型）： IgG, IgMが自己の細胞表面抗原に結合し、補体や食細胞を介して細胞を破壊。自己免疫性溶血性貧血、血小板減少症など。\n• III型（免疫複合体型）： 抗原と抗体（IgG, IgM）の免疫複合体が組織に沈着し、補体を活性化して炎症を引き起こす。ループス腎炎、血清病など。'
+            },
+            {
+                id: 3,
+                difficulty: '国家試験より易しい',
+                questionText: 'Which contributes to coordinated movement?',
+                choices: [
+                    'a. Frontal lobe',
+                    'b. Parietal lobe',
+                    'c. Occipital lobe',
+                    'd. Temporal lobe',
+                    'e. Cerebellum'
+                ],
+                answer: 'e',
+                explanation: '協調運動（coordinated movement）は、複数の筋肉の活動を時間的・空間的に適切に統合し、滑らかで正確な運動を実現する機能です。この中枢は**小脳（Cerebellum）**です。小脳が障害されると、運動失調（ataxia）をきたし、測定障害（dysmetria）や協調運動反復不能（adiadochokinesis）などがみられます。\n• a. 前頭葉： 思考、意思決定、運動の企画（運動野）。\n• b. 頭頂葉： 感覚情報の統合（体性感覚野）。\n• c. 後頭葉： 視覚情報の処理（視覚野）。\n• d. 側頭葉： 聴覚、記憶、言語理解（ウェルニッケ野）。'
+            },
+            {
+                id: 28,
+                difficulty: '★★★☆☆ 国家試験レベル',
+                questionText: '35歳の男性。左顎下部の腫脹を主訴に来院した。数カ月前より時々起こる左顎下部の腫脹に気付いていたが経過をみていた。最近食後に左顎下部腫脹が頻繁に起こり、数時間で腫脹は改善する。腫脹時は軽度の痛みを伴うため来院した。身長 174 cm、体重 70.5 kg。体温 36.4℃。左顎下腺は右よりやや大きく、全体的に硬く触知した。触診により軽度の圧痛を伴った。血液所見：赤血球 515万、Hb 15.2 g/dL、Ht 44.5%、白血球 8,600、血小板 19.8万。血液生化学所見：総蛋白 7.5 g/dL、アルブミン 4.2 g/dL、総ビリルビン 1.0 mg/dL、AST 19 U/L、ALT 24 U/L、LD 173 U/L（基準120〜245）、ALP 67 U/L（基準38〜113）、アミラーゼ 155 U/L（基準37〜160）、CK 110 U/L（基準30〜140）、尿素窒素 19 mg/dL、クレアチニン 0.69 mg/dL。CRP 1.2 mg/dL。\n\n確定診断に必要な検査はどれか。2つ選べ。',
+                choices: [
+                    'a. 頸部CT',
+                    'b. IgG4測定',
+                    'c. 抗SS-A抗体測定',
+                    'd. 口腔底の双手診',
+                    'e. 穿刺吸引細胞診'
+                ],
+                answer: 'a, d',
+                explanation: '食事のたびに繰り返す顎下部の腫脹と疼痛は、唾石症による唾液のうっ滞（唾仙痛）を強く示唆します。特に顎下腺に好発します。\n• a. 頸部CT: 唾石の存在部位や大きさ、顎下腺の腫脹や炎症の程度を評価するために非常に有用です。特に石灰化の程度が低い唾石の描出に優れます。\n• d. 口腔底の双手診: 口腔内からと口腔外からの両方から触診することで、顎下腺管内の唾石を触知できることがあります。基本的な診察手技として重要です。\n• b. IgG4測定やc. 抗SS-A抗体測定は、それぞれIgG4関連疾患やシェーグレン症候群といった自己免疫性唾液腺炎を疑う場合に行いますが、本症例のように食事と関連した間欠的な症状からは、まず唾石症を考えます。\n• e. 穿刺吸引細胞診は、腫瘍性病変が疑われる場合に行いますが、第一選択の検査ではありません。'
+            }
+        ];
+
+        // --- STATE ---
+        let currentQuestionIndex = 0;
+        let loadedQuestions = new Set();
+        let activeFeedbackModalQuestionId = null;
+
+        // --- DOM Elements ---
+        const questionsContainer = document.getElementById('questions-container');
+        const scrollToBottomBtn = document.getElementById('scroll-to-bottom');
+        const settingsBtn = document.getElementById('settings-button');
+        const settingsModal = document.getElementById('settings-modal');
+        const closeSettingsModalBtn = document.getElementById('close-settings-modal');
+        const feedbackModal = document.getElementById('feedback-modal');
+        const closeFeedbackModalBtn = document.getElementById('close-feedback-modal');
+        const submitFeedbackBtn = document.getElementById('submit-feedback');
+        const toastMessage = document.getElementById('toast-message');
+
+        // --- Functions ---
+        
+        /**
+         * 難易度表示用のHTMLを生成する
+         * @param {string} difficulty - 難易度テキスト
+         * @returns {string} - HTML文字列
+         */
+        function getDifficultyBadge(difficulty) {
+            let colorClass = 'bg-blue-500';
+            if (difficulty.includes('易しい')) {
+                colorClass = 'bg-green-500';
+            } else if (difficulty.includes('難しい') || difficulty.includes('★★★')) {
+                colorClass = 'bg-red-500';
+            }
+            return `<span class="text-xs font-semibold inline-block py-1 px-3 uppercase rounded-full text-white ${colorClass}">${difficulty}</span>`;
+        }
+
+        /**
+         * 指定されたインデックスの問題を画面に読み込む
+         * @param {number} index - questions配列のインデックス
+         */
+        function loadQuestion(index) {
+            if (index >= questions.length || loadedQuestions.has(index)) {
+                return;
+            }
+
+            const q = questions[index];
+            loadedQuestions.add(index);
+
+            const questionElement = document.createElement('div');
+            questionElement.id = `question-${q.id}`;
+            questionElement.className = 'glassmorphism rounded-2xl p-6 mb-8 shadow-lg border-gray-700';
+            
+            // 問題文と選択肢のHTML
+            let questionHTML = `
+                <div class="flex justify-between items-start mb-4">
+                    <h2 class="text-xl font-bold text-blue-300">問題 ${q.id}</h2>
+                    ${getDifficultyBadge(q.difficulty)}
+                </div>
+                <p class="text-gray-200 leading-relaxed whitespace-pre-wrap mb-6">${q.questionText}</p>
+                <div class="space-y-3 mb-6">
+                    ${q.choices.map(choice => `<div class="bg-gray-800 p-3 rounded-lg hover:bg-gray-700 transition-colors">${choice}</div>`).join('')}
+                </div>
+                <button class="show-answer-btn w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg transition-transform transform hover:scale-105" data-question-id="${q.id}">
+                    回答を表示する
+                </button>
+                <div id="answer-section-${q.id}" class="hidden mt-6"></div>
+            `;
+            
+            questionElement.innerHTML = questionHTML;
+            questionsContainer.appendChild(questionElement);
+        }
+
+        /**
+         * 回答と解説を表示する
+         * @param {number} questionId - 問題ID
+         */
+        function showAnswer(questionId) {
+            const q = questions.find(q => q.id === questionId);
+            if (!q) return;
+
+            const answerSection = document.getElementById(`answer-section-${q.id}`);
+            if (answerSection.classList.contains('hidden')) {
+                answerSection.innerHTML = `
+                    <div class="border-t border-gray-700 pt-6">
+                        <h3 class="text-lg font-bold text-green-400 mb-2">正解： ${q.answer}</h3>
+                        <p class="text-gray-300 leading-relaxed whitespace-pre-wrap">${q.explanation}</p>
+                        
+                        <div class="flex items-center justify-center space-x-4 mt-6 pt-4 border-t border-gray-700">
+                            <button title="良い解説" class="feedback-icon-btn"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 18.333V9a2 2 0 012-2h4V3a1 1 0 011-1z"/></svg></button>
+                            <button title="悪い解説" class="feedback-icon-btn"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14H5.236a2 2 0 01-1.789-2.894l3.5-7A2 2 0 018.738 3h4.017c.163 0 .326.02.485.06L17 5.667V15a2 2 0 01-2 2h-4v4a1 1 0 01-1 1z"/></svg></button>
+                            <button title="共有する" class="feedback-icon-btn"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12s-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.368a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z"/></svg></button>
+                            <button title="修正を依頼する" class="request-fix-btn feedback-icon-btn" data-question-id="${q.id}"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg></button>
+                        </div>
+                    </div>
+                    ${(currentQuestionIndex < questions.length - 1) ? 
+                        `<button class="next-question-btn w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-lg transition-transform transform hover:scale-105 mt-6">次の問題へ</button>` :
+                        `<p class="text-center mt-8 font-bold text-lg text-yellow-400">全ての問題が終了しました！</p>`
+                    }
+                `;
+                answerSection.classList.remove('hidden');
+
+                // Hide the "Show Answer" button
+                const showAnswerBtn = document.querySelector(`button.show-answer-btn[data-question-id="${q.id}"]`);
+                showAnswerBtn.style.display = 'none';
+            }
+        }
+
+        // --- Event Listeners ---
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            loadQuestion(currentQuestionIndex);
+            
+            // Update modal info
+            document.getElementById('total-q-modal').textContent = questions.length;
+        });
+
+        questionsContainer.addEventListener('click', function(e) {
+            // "回答を表示する" button
+            if (e.target.classList.contains('show-answer-btn')) {
+                const questionId = parseInt(e.target.dataset.questionId);
+                showAnswer(questionId);
+            }
+            
+            // "次の問題へ" button
+            if (e.target.classList.contains('next-question-btn')) {
+                currentQuestionIndex++;
+                loadQuestion(currentQuestionIndex);
+                setTimeout(() => {
+                    const nextQuestionElement = document.getElementById(`question-${questions[currentQuestionIndex].id}`);
+                    nextQuestionElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }, 100);
+            }
+
+            // "修正を依頼する" button
+            if (e.target.closest('.request-fix-btn')) {
+                activeFeedbackModalQuestionId = parseInt(e.target.closest('.request-fix-btn').dataset.questionId);
+                feedbackModal.classList.remove('hidden');
+            }
+            
+            // Feedback icon buttons (like, dislike, share)
+            if (e.target.closest('.feedback-icon-btn') && !e.target.closest('.request-fix-btn')) {
+                 const btn = e.target.closest('.feedback-icon-btn');
+                 btn.classList.toggle('text-blue-400');
+            }
+        });
+
+        // Scroll to bottom button
+        window.addEventListener('scroll', () => {
+            if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 200) {
+                scrollToBottomBtn.classList.add('opacity-0');
+            } else {
+                scrollToBottomBtn.classList.remove('opacity-0');
+            }
+        });
+
+        scrollToBottomBtn.addEventListener('click', () => {
+            window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+        });
+
+        // Settings Modal
+        settingsBtn.addEventListener('click', () => {
+            document.getElementById('current-q-modal').textContent = currentQuestionIndex + 1;
+            settingsModal.classList.remove('hidden');
+        });
+        closeSettingsModalBtn.addEventListener('click', () => {
+            settingsModal.classList.add('hidden');
+        });
+        settingsModal.addEventListener('click', (e) => {
+            if (e.target === settingsModal) {
+                settingsModal.classList.add('hidden');
+            }
+        });
+
+        // Feedback Modal
+        closeFeedbackModalBtn.addEventListener('click', () => {
+            feedbackModal.classList.add('hidden');
+        });
+        submitFeedbackBtn.addEventListener('click', () => {
+            console.log(`Feedback for question ${activeFeedbackModalQuestionId}:`);
+            console.log(document.getElementById('other-feedback').value);
+            document.querySelectorAll('.feedback-option-btn.active').forEach(btn => console.log(btn.textContent));
+            
+            feedbackModal.classList.add('hidden');
+            
+            // Show toast
+            toastMessage.classList.remove('opacity-0');
+            setTimeout(() => {
+                toastMessage.classList.add('opacity-0');
+            }, 2000);
+            
+            // Reset feedback form
+            document.getElementById('other-feedback').value = '';
+            document.querySelectorAll('.feedback-option-btn.active').forEach(btn => btn.classList.remove('active', 'bg-blue-600'));
+        });
+        feedbackModal.addEventListener('click', (e) => {
+            if (e.target === feedbackModal) {
+                feedbackModal.classList.add('hidden');
+            }
+        });
+        
+        feedbackModal.addEventListener('click', (e) => {
+            if (e.target.classList.contains('feedback-option-btn')) {
+                e.target.classList.toggle('active');
+                e.target.classList.toggle('bg-blue-600');
+            }
+        });
+
+        // Add custom styles for feedback buttons
+        const styleSheet = document.createElement("style");
+        styleSheet.type = "text/css";
+        styleSheet.innerText = `
+            .feedback-option-btn {
+                background-color: #374151; /* bg-gray-700 */
+                border: 1px solid #4B5563; /* border-gray-600 */
+                padding: 0.75rem;
+                border-radius: 0.5rem;
+                transition: all 0.2s ease-in-out;
+            }
+            .feedback-option-btn:hover {
+                background-color: #4B5563; /* bg-gray-600 */
+                border-color: #6B7280; /* border-gray-500 */
+            }
+            .feedback-option-btn.active {
+                background-color: #2563EB; /* bg-blue-600 */
+                border-color: #1D4ED8; /* border-blue-700 */
+                color: white;
+            }
+            .feedback-icon-btn {
+                color: #9CA3AF; /* text-gray-400 */
+                transition: color 0.2s, transform 0.2s;
+            }
+            .feedback-icon-btn:hover {
+                color: #E5E7EB; /* text-gray-200 */
+                transform: scale(1.1);
+            }
+            .feedback-icon-btn.text-blue-400 {
+                color: #60A5FA; /* text-blue-400 */
+            }
+        `;
+        document.head.appendChild(styleSheet);
+
+    </script>
+</body>
+</html>

@@ -4,417 +4,528 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Medteria 問題集テスト</title>
+    
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts: Inter for a clean look -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+
     <style>
-        /* ガラスモーフィズム用のカスタムクラス */
-        .glassmorphism {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
+        /* カスタムスタイル */
         body {
             font-family: 'Noto Sans JP', 'Inter', sans-serif;
-            background: #111827; /* ダークグレーの背景 */
-            color: #E5E7EB; /* 明るいグレーのテキスト */
         }
-        /* スクロールバーのスタイル */
-        ::-webkit-scrollbar {
-            width: 8px;
+
+        /* ガラスモーフィズム用の基本スタイル */
+        .glass-morphism {
+            background: rgba(255, 255, 255, 0.3); /* 半透明の白 */
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px); /* Safari対応 */
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
         }
-        ::-webkit-scrollbar-track {
-            background: #1F2937;
+        
+        .dark .glass-morphism {
+            background: rgba(31, 41, 55, 0.4); /* ダークモード用 */
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
         }
-        ::-webkit-scrollbar-thumb {
-            background: #4B5563;
-            border-radius: 4px;
+
+        /* Toast通知のアニメーション */
+        @keyframes slide-in {
+            from {
+                transform: translateY(-20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
         }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #6B7280;
+        @keyframes slide-out {
+            from {
+                transform: translateY(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateY(-20px);
+                opacity: 0;
+            }
+        }
+        .toast-in {
+            animation: slide-in 0.3s ease-out forwards;
+        }
+        .toast-out {
+            animation: slide-out 0.3s ease-in forwards;
+        }
+
+        /* アイコンクリック時のアニメーション */
+        @keyframes pop {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.4); }
+            100% { transform: scale(1); }
+        }
+        .animate-pop {
+            animation: pop 0.4s ease-in-out;
+        }
+
+        /* フィードバックボタンクリック後のアニメーション */
+        @keyframes feedback-pop {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+        .feedback-icon {
+            width: 24px;
+            height: 24px;
+            fill: currentColor;
+            transition: transform 0.2s ease-in-out;
+        }
+        .feedback-icon.clicked {
+            animation: feedback-pop 0.4s ease-in-out;
+        }
+        .feedback-icon[data-feedback="good"].clicked {
+            color: #10b981; /* green-500 */
+        }
+        .feedback-icon[data-feedback="bad"].clicked {
+            color: #ef4444; /* red-500 */
+        }
+        .feedback-icon[data-feedback="share"].clicked {
+            color: #3b82f6; /* blue-500 */
+        }
+        .feedback-icon[data-feedback="request-edit"].clicked {
+            color: #f59e0b; /* amber-500 */
+        }
+
+        /* 吹き出しのアニメーション */
+        @keyframes pulse-slow {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        .animate-pulse-slow {
+            animation: pulse-slow 2s ease-in-out;
         }
     </style>
 </head>
-<body class="bg-gray-900 text-gray-200">
+<body class="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200 transition-colors duration-300">
 
-    <!-- Header -->
-    <header class="glassmorphism sticky top-0 z-40 w-full shadow-md">
-        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
-            <h1 class="text-xl font-bold text-white">Medteria 問題集テスト</h1>
-            <div class="flex items-center space-x-4">
-                <button id="search-button" class="text-white hover:text-blue-400 transition-colors">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                    </svg>
-                </button>
-                <button id="settings-button" class="text-white hover:text-blue-400 transition-colors">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                    </svg>
-                </button>
+    <!-- 背景のグラデーション要素 -->
+    <div class="fixed top-0 left-0 w-full h-full -z-10 bg-gradient-to-br from-cyan-200 via-blue-300 to-purple-400 dark:from-cyan-900 dark:via-blue-900 dark:to-purple-900"></div>
+
+    <!-- ヘッダー -->
+    <header class="sticky top-0 z-40 w-full glass-morphism">
+        <div class="container mx-auto px-4">
+            <div class="flex items-center justify-between h-16">
+                <h1 class="text-xl font-bold text-gray-800 dark:text-white">Medteria 問題集テスト</h1>
+                <div class="flex items-center space-x-4">
+                    <button class="p-2 rounded-full hover:bg-white/30 dark:hover:bg-gray-700/50 transition-colors">
+                        <!-- 検索アイコン -->
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                    </button>
+                    <button id="settings-button" class="p-2 rounded-full hover:bg-white/30 dark:hover:bg-gray-700/50 transition-colors">
+                        <!-- 歯車アイコン -->
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.096 2.572-1.065z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                    </button>
+                </div>
             </div>
         </div>
     </header>
 
-    <!-- Main Content -->
-    <main id="questions-container" class="container mx-auto p-4 pb-24">
-        <!-- Questions will be dynamically inserted here -->
+    <!-- メインコンテンツ -->
+    <main id="problem-container" class="container mx-auto p-4 pb-24">
+        <!-- 問題はここに動的に追加されます -->
     </main>
 
-    <!-- Footer -->
-    <footer class="bg-gray-800 text-center p-4 text-sm text-gray-400 w-full">
+    <!-- フッター -->
+    <footer class="text-center p-4 text-xs text-gray-600 dark:text-gray-400">
         <p>&copy; 2025 copyright Medteria All rights reserved.</p>
     </footer>
 
-    <!-- Scroll to Bottom Button -->
-    <button id="scroll-to-bottom" class="fixed bottom-6 right-6 bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-full shadow-lg transition-opacity duration-300 opacity-0 z-50">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-        </svg>
-    </button>
-
-    <!-- Settings Modal -->
-    <div id="settings-modal" class="fixed inset-0 bg-black bg-opacity-70 flex justify-center items-center z-50 hidden">
-        <div class="glassmorphism rounded-2xl shadow-2xl p-8 w-11/12 md:w-1/3 text-white border-gray-700">
-            <h2 class="text-2xl font-bold mb-6 text-center">解答状況</h2>
+    <!-- 設定モーダル -->
+    <div id="settings-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black bg-opacity-50">
+        <div class="glass-morphism rounded-2xl w-11/12 max-w-md p-6 text-gray-800 dark:text-white">
+            <h2 class="text-2xl font-bold mb-4">設定</h2>
             <div class="space-y-4">
-                <p>現在の問題: <span id="current-q-modal">1</span> / <span id="total-q-modal"></span></p>
-                <p>正答率: <span id="accuracy-rate">-%</span></p>
+                <p class="font-semibold">現在の解答状況:</p>
+                <div class="flex justify-between"><span>解答済み:</span> <span id="answered-count">0問</span></div>
+                <div class="flex justify-between"><span>合計問題数:</span> <span id="total-count">4問</span></div>
             </div>
-            <div class="mt-8 flex flex-col space-y-4">
-                <button class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg transition-transform transform hover:scale-105">保存して終了する</button>
-                <button id="close-settings-modal" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-3 px-4 rounded-lg transition-transform transform hover:scale-105">閉じる</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Feedback Modal -->
-    <div id="feedback-modal" class="fixed inset-0 bg-black bg-opacity-70 flex justify-center items-center z-50 hidden">
-        <div class="glassmorphism rounded-2xl shadow-2xl p-8 w-11/12 md:w-1/2 text-white border-gray-700">
-            <h2 class="text-2xl font-bold mb-6 text-center">修正依頼</h2>
-            <p class="mb-4">どの点について修正を依頼しますか？</p>
-            <div class="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-6">
-                <button class="feedback-option-btn">文章が難しすぎる</button>
-                <button class="feedback-option-btn">文章が長すぎる</button>
-                <button class="feedback-option-btn">文章が短すぎる</button>
-                <button class="feedback-option-btn">医学的に誤りがある</button>
-            </div>
-            <textarea id="other-feedback" class="w-full bg-gray-800 border border-gray-600 rounded-lg p-3 h-24 focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="その他の内容はこちらにご記入ください..."></textarea>
             <div class="mt-8 flex justify-end space-x-4">
-                <button id="close-feedback-modal" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-6 rounded-lg transition">閉じる</button>
-                <button id="submit-feedback" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-6 rounded-lg transition">送信</button>
+                <button id="close-settings-modal" class="px-4 py-2 rounded-lg bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 dark:hover:bg-gray-500 transition-colors">閉じる</button>
+                <button class="px-4 py-2 rounded-lg bg-blue-500 text-white hover:bg-blue-600 transition-colors">保存して終了する</button>
             </div>
         </div>
     </div>
     
-    <!-- Success Message Toast -->
-    <div id="toast-message" class="fixed bottom-20 right-1/2 translate-x-1/2 bg-green-500 text-white py-2 px-6 rounded-full shadow-lg opacity-0 transition-opacity duration-300 z-50">
-        送信しました！
+    <!-- 修正依頼モーダル -->
+    <div id="feedback-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black bg-opacity-50">
+        <div class="glass-morphism rounded-2xl w-11/12 max-w-md p-6 text-gray-800 dark:text-white">
+            <h2 class="text-2xl font-bold mb-4">修正内容の詳細</h2>
+            <p class="mb-4 text-sm">解説に関する具体的な問題を教えてください。</p>
+            <div class="grid grid-cols-2 gap-2 mb-4">
+                <button class="feedback-option-button">文章が難しすぎる</button>
+                <button class="feedback-option-button">文章が長すぎる</button>
+                <button class="feedback-option-button">文章が短すぎる</button>
+                <button class="feedback-option-button">医学的に誤りがある</button>
+            </div>
+            <textarea class="w-full h-24 p-2 rounded-lg bg-white/50 dark:bg-gray-800/50 border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 focus:outline-none transition" placeholder="その他の内容はこちらにご記入ください..."></textarea>
+            <div class="mt-6 flex justify-end space-x-4">
+                <button id="close-feedback-modal" class="px-4 py-2 rounded-lg bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 dark:hover:bg-gray-500 transition-colors">キャンセル</button>
+                <button id="submit-feedback-button" class="px-4 py-2 rounded-lg bg-blue-500 text-white hover:bg-blue-600 transition-colors">送信する</button>
+            </div>
+        </div>
     </div>
 
+    <!-- Toast通知コンテナ -->
+    <div id="toast-container" class="fixed top-20 right-0 left-0 mx-auto w-11/12 max-w-md z-50 flex flex-col items-center space-y-2"></div>
+
+    <!-- スクロールダウンボタン -->
+    <button id="scroll-down-button" class="fixed bottom-6 right-6 z-40 h-14 w-14 rounded-full bg-blue-500 text-white shadow-lg flex items-center justify-center hover:bg-blue-600 transition-transform hover:scale-110">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+        </svg>
+    </button>
 
     <script>
-        // --- DATA ---
-        const questions = [
+    document.addEventListener('DOMContentLoaded', () => {
+
+        // --- データ ---
+        const problems = [
             {
                 id: 1,
+                number: '問題1',
                 difficulty: '国家試験より易しい',
-                questionText: 'インスリン分泌促進系に分類されるのはどれか。',
-                choices: [
-                    'a. チアゾリジン薬',
-                    'b. ビグアナイド薬',
-                    'c. α-グルコシダーゼ阻害薬',
-                    'd. DPP-4 (dipeptidyl peptidase-4) 阻害薬',
-                    'e. SGLT2 (sodium glucose cotransporter 2) 阻害薬'
-                ],
+                question: 'インスリン分泌を促進する作用機序を持つ血糖降下薬はどれか。',
+                choices: ['a. チアゾリジン薬', 'b. ビグアナイド薬', 'c. α-グルコシダーゼ阻害薬', 'd. DPP-4阻害薬', 'e. SGLT2阻害薬'],
                 answer: 'd',
-                explanation: '本問は血糖降下薬の作用機序による分類を問う問題です。\n• a. チアゾリジン薬： PPARγを活性化し、インスリン抵抗性を改善します。インスリン分泌は促進しません。\n• b. ビグアナイド薬： 主に肝臓での糖新生を抑制し、インスリン抵抗性を改善します。インスリン分泌は促進しません。\n• c. α-グルコシダーゼ阻害薬： 腸管での二糖類の分解を阻害し、糖の吸収を遅らせます。インスリン分泌は促進しません。\n• d. DPP-4阻害薬： インクレチン（GLP-1など）の分解を阻害することで血中濃度を高め、血糖依存的にインスリン分泌を促進し、グルカゴン分泌を抑制します。これが正解です。\n• e. SGLT2阻害薬： 腎臓の近位尿細管でのブドウ糖再吸収を抑制し、尿中への糖排泄を促進します。インスリン非依存的に血糖を低下させます。'
+                explanation: `
+                    <p class="font-bold text-lg mb-2 text-blue-600 dark:text-blue-400">正解：d</p>
+                    <p class="font-semibold mb-2">解説：</p>
+                    <p class="mb-4">本問は血糖降下薬の作用機序による分類を問う問題です。</p>
+                    <ul class="list-disc list-inside space-y-2">
+                        <li><b>a. チアゾリジン薬：</b> PPARγを活性化し、インスリン抵抗性を改善します。インスリン分泌は促進しません。</li>
+                        <li><b>b. ビグアナイド薬：</b> 主に肝臓での糖新生を抑制し、インスリン抵抗性を改善します。インスリン分泌は促進しません。</li>
+                        <li><b>c. α-グルコシダーゼ阻害薬：</b> 腸管での二糖類の分解を阻害し、糖の吸収を遅らせます。インスリン分泌は促進しません。</li>
+                        <li><b>d. DPP-4阻害薬：</b> インクレチン（GLP-1など）の分解を阻害することで血中濃度を高め、血糖依存的にインスリン分泌を促進し、グルカゴン分泌を抑制します。これが正解です。</li>
+                        <li><b>e. SGLT2阻害薬：</b> 腎臓の近位尿細管でのブドウ糖再吸収を抑制し、尿中への糖排泄を促進します。インスリン非依存的に血糖を低下させます。</li>
+                    </ul>
+                `
             },
             {
                 id: 2,
+                number: '問題2',
                 difficulty: '国家試験より易しい',
-                questionText: 'ツベルクリン反応に関連する免疫反応はどれか。',
-                choices: [
-                    'a. I型アレルギー',
-                    'b. II型アレルギー',
-                    'c. III型アレルギー',
-                    'd. IV型アレルギー',
-                    'e. V型アレルギー'
-                ],
+                question: 'ツベルクリン反応が分類されるアレルギー型はどれか。',
+                choices: ['a. I型', 'b. II型', 'c. III型', 'd. IV型', 'e. V型'],
                 answer: 'd',
-                explanation: 'ツベルクリン反応は、結核菌に対する細胞性免疫の有無を調べる皮内反応であり、Gell-Coombs分類における**IV型アレルギー（遅延型アレルギー）**の代表例です。抗原提示細胞によって提示された結核菌抗原に対し、感作T細胞が反応し、サイトカインを放出してマクロファージなどを活性化させることで、48〜72時間後に発赤・硬結がピークに達します。\n• I型（即時型）： IgEが関与。花粉症、気管支喘息、アナフィラキシーなど。\n• II型（細胞障害型）： IgG, IgMが自己の細胞表面抗原に結合し、補体や食細胞を介して細胞を破壊。自己免疫性溶血性貧血、血小板減少症など。\n• III型（免疫複合体型）： 抗原と抗体（IgG, IgM）の免疫複合体が組織に沈着し、補体を活性化して炎症を引き起こす。ループス腎炎、血清病など。'
+                explanation: `
+                    <p class="font-bold text-lg mb-2 text-blue-600 dark:text-blue-400">正解：d</p>
+                    <p class="font-semibold mb-2">解説：</p>
+                    <p class="mb-4">ツベルクリン反応は、結核菌に対する細胞性免疫の有無を調べる皮内反応であり、Gell-Coombs分類における<b>IV型アレルギー（遅延型アレルギー）</b>の代表例です。抗原提示細胞によって提示された結核菌抗原に対し、感作T細胞が反応し、サイトカインを放出してマクロファージなどを活性化させることで、48〜72時間後に発赤・硬結がピークに達します。</p>
+                    <ul class="list-disc list-inside space-y-2">
+                        <li><b>I型（即時型）：</b> IgEが関与。花粉症、気管支喘息、アナフィラキシーなど。</li>
+                        <li><b>II型（細胞障害型）：</b> IgG, IgMが自己の細胞表面抗原に結合し、補体や食細胞を介して細胞を破壊。自己免疫性溶血性貧血、血小板減少症など。</li>
+                        <li><b>III型（免疫複合体型）：</b> 抗原と抗体（IgG, IgM）の免疫複合体が組織に沈着し、補体を活性化して炎症を引き起こす。ループス腎炎、血清病など。</li>
+                    </ul>
+                `
             },
             {
                 id: 3,
+                number: '問題3',
                 difficulty: '国家試験より易しい',
-                questionText: 'Which contributes to coordinated movement?',
-                choices: [
-                    'a. Frontal lobe',
-                    'b. Parietal lobe',
-                    'c. Occipital lobe',
-                    'd. Temporal lobe',
-                    'e. Cerebellum'
-                ],
+                question: '滑らかで正確な運動を実現する協調運動の中枢はどれか。',
+                choices: ['a. 前頭葉', 'b. 頭頂葉', 'c. 後頭葉', 'd. 側頭葉', 'e. 小脳'],
                 answer: 'e',
-                explanation: '協調運動（coordinated movement）は、複数の筋肉の活動を時間的・空間的に適切に統合し、滑らかで正確な運動を実現する機能です。この中枢は**小脳（Cerebellum）**です。小脳が障害されると、運動失調（ataxia）をきたし、測定障害（dysmetria）や協調運動反復不能（adiadochokinesis）などがみられます。\n• a. 前頭葉： 思考、意思決定、運動の企画（運動野）。\n• b. 頭頂葉： 感覚情報の統合（体性感覚野）。\n• c. 後頭葉： 視覚情報の処理（視覚野）。\n• d. 側頭葉： 聴覚、記憶、言語理解（ウェルニッケ野）。'
+                explanation: `
+                    <p class="font-bold text-lg mb-2 text-blue-600 dark:text-blue-400">正解：e</p>
+                    <p class="font-semibold mb-2">解説：</p>
+                    <p class="mb-4">協調運動（coordinated movement）は、複数の筋肉の活動を時間的・空間的に適切に統合し、滑らかで正確な運動を実現する機能です。この中枢は<b>小脳（Cerebellum）</b>です。小脳が障害されると、運動失調（ataxia）をきたし、測定障害（dysmetria）や協調運動反復不能（adiadochokinesis）などがみられます。</p>
+                    <ul class="list-disc list-inside space-y-2">
+                        <li><b>a. 前頭葉：</b> 思考、意思決定、運動の企画（運動野）。</li>
+                        <li><b>b. 頭頂葉：</b> 感覚情報の統合（体性感覚野）。</li>
+                        <li><b>c. 後頭葉：</b> 視覚情報の処理（視覚野）。</li>
+                        <li><b>d. 側頭葉：</b> 聴覚、記憶、言語理解（ウェルニッケ野）。</li>
+                    </ul>
+                `
             },
             {
                 id: 28,
+                number: '問題28 (111回 D28)',
                 difficulty: '★★★☆☆ 国家試験レベル',
-                questionText: '35歳の男性。左顎下部の腫脹を主訴に来院した。数カ月前より時々起こる左顎下部の腫脹に気付いていたが経過をみていた。最近食後に左顎下部腫脹が頻繁に起こり、数時間で腫脹は改善する。腫脹時は軽度の痛みを伴うため来院した。身長 174 cm、体重 70.5 kg。体温 36.4℃。左顎下腺は右よりやや大きく、全体的に硬く触知した。触診により軽度の圧痛を伴った。血液所見：赤血球 515万、Hb 15.2 g/dL、Ht 44.5%、白血球 8,600、血小板 19.8万。血液生化学所見：総蛋白 7.5 g/dL、アルブミン 4.2 g/dL、総ビリルビン 1.0 mg/dL、AST 19 U/L、ALT 24 U/L、LD 173 U/L（基準120〜245）、ALP 67 U/L（基準38〜113）、アミラーゼ 155 U/L（基準37〜160）、CK 110 U/L（基準30〜140）、尿素窒素 19 mg/dL、クレアチニン 0.69 mg/dL。CRP 1.2 mg/dL。\n\n確定診断に必要な検査はどれか。2つ選べ。',
-                choices: [
-                    'a. 頸部CT',
-                    'b. IgG4測定',
-                    'c. 抗SS-A抗体測定',
-                    'd. 口腔底の双手診',
-                    'e. 穿刺吸引細胞診'
-                ],
+                question: '95歳の男性。食事のたびに右顎の下が腫れて痛むことを主訴に来院した。1年前から自覚していたが、最近症状が強くなってきたため受診した。身長165cm、体重60kg。体温36.8℃。脈拍72/分、整。血圧136/82mmHg。意識は清明。口腔内は乾燥している。右顎下部に圧痛を伴う弾性硬の腫瘤を触知する。この患者でまず行うべき検査はどれか。2つ選べ。',
+                choices: ['a. 頸部CT', 'b. IgG4測定', 'c. 抗SS-A抗体測定', 'd. 口腔底の双手診', 'e. 穿刺吸引細胞診'],
                 answer: 'a, d',
-                explanation: '食事のたびに繰り返す顎下部の腫脹と疼痛は、唾石症による唾液のうっ滞（唾仙痛）を強く示唆します。特に顎下腺に好発します。\n• a. 頸部CT: 唾石の存在部位や大きさ、顎下腺の腫脹や炎症の程度を評価するために非常に有用です。特に石灰化の程度が低い唾石の描出に優れます。\n• d. 口腔底の双手診: 口腔内からと口腔外からの両方から触診することで、顎下腺管内の唾石を触知できることがあります。基本的な診察手技として重要です。\n• b. IgG4測定やc. 抗SS-A抗体測定は、それぞれIgG4関連疾患やシェーグレン症候群といった自己免疫性唾液腺炎を疑う場合に行いますが、本症例のように食事と関連した間欠的な症状からは、まず唾石症を考えます。\n• e. 穿刺吸引細胞診は、腫瘍性病変が疑われる場合に行いますが、第一選択の検査ではありません。'
+                explanation: `
+                    <p class="font-bold text-lg mb-2 text-blue-600 dark:text-blue-400">正解: a, d</p>
+                    <p class="font-semibold mb-2">解説:</p>
+                    <p class="mb-4">食事のたびに繰り返す顎下部の腫脹と疼痛は、唾石症による唾液のうっ滞（唾仙痛）を強く示唆します。特に顎下腺に好発します。</p>
+                    <ul class="list-disc list-inside space-y-2">
+                        <li><b>a. 頸部CT:</b> 唾石の存在部位や大きさ、顎下腺の腫脹や炎症の程度を評価するために非常に有用です。特に石灰化の程度が低い唾石の描出に優れます。</li>
+                        <li><b>d. 口腔底の双手診:</b> 口腔内からと口腔外からの両方から触診することで、顎下腺管内の唾石を触知できることがあります。基本的な診察手技として重要です。</li>
+                        <li><b>b. IgG4測定</b>や<b>c. 抗SS-A抗体測定</b>は、それぞれIgG4関連疾患やシェーグレン症候群といった自己免疫性唾液腺炎を疑う場合に行いますが、本症例のように食事と関連した間欠的な症状からは、まず唾石症を考えます。</li>
+                        <li><b>e. 穿刺吸引細胞診</b>は、腫瘍性病変が疑われる場合に行いますが、第一選択の検査ではありません。</li>
+                    </ul>
+                `
             }
         ];
-
-        // --- STATE ---
-        let currentQuestionIndex = 0;
-        let loadedQuestions = new Set();
-        let activeFeedbackModalQuestionId = null;
-
-        // --- DOM Elements ---
-        const questionsContainer = document.getElementById('questions-container');
-        const scrollToBottomBtn = document.getElementById('scroll-to-bottom');
-        const settingsBtn = document.getElementById('settings-button');
-        const settingsModal = document.getElementById('settings-modal');
-        const closeSettingsModalBtn = document.getElementById('close-settings-modal');
-        const feedbackModal = document.getElementById('feedback-modal');
-        const closeFeedbackModalBtn = document.getElementById('close-feedback-modal');
-        const submitFeedbackBtn = document.getElementById('submit-feedback');
-        const toastMessage = document.getElementById('toast-message');
-
-        // --- Functions ---
         
-        /**
-         * 難易度表示用のHTMLを生成する
-         * @param {string} difficulty - 難易度テキスト
-         * @returns {string} - HTML文字列
-         */
-        function getDifficultyBadge(difficulty) {
-            let colorClass = 'bg-blue-500';
-            if (difficulty.includes('易しい')) {
-                colorClass = 'bg-green-500';
-            } else if (difficulty.includes('難しい') || difficulty.includes('★★★')) {
-                colorClass = 'bg-red-500';
+        // --- 状態管理 ---
+        let currentProblemIndex = 0;
+        let answeredCount = 0;
+
+        // --- DOM要素 ---
+        const problemContainer = document.getElementById('problem-container');
+        const settingsButton = document.getElementById('settings-button');
+        const settingsModal = document.getElementById('settings-modal');
+        const closeSettingsModal = document.getElementById('close-settings-modal');
+        const feedbackModal = document.getElementById('feedback-modal');
+        const closeFeedbackModal = document.getElementById('close-feedback-modal');
+        const submitFeedbackButton = document.getElementById('submit-feedback-button');
+        const scrollDownButton = document.getElementById('scroll-down-button');
+        const toastContainer = document.getElementById('toast-container');
+        const answeredCountEl = document.getElementById('answered-count');
+        const totalCountEl = document.getElementById('total-count');
+
+        // --- 関数 ---
+
+        /** 難易度を星で表示する */
+        function formatDifficulty(difficulty) {
+            if (difficulty.includes('★')) {
+                const starCount = (difficulty.match(/★/g) || []).length;
+                const emptyStarCount = 5 - starCount;
+                return `
+                    <div class="flex items-center">
+                        ${'★'.repeat(starCount).split('').map(s => `<span class="text-yellow-400">${s}</span>`).join('')}
+                        ${'☆'.repeat(emptyStarCount).split('').map(s => `<span class="text-gray-400">${s}</span>`).join('')}
+                        <span class="ml-2 text-xs text-gray-500 dark:text-gray-400">${difficulty.split(' ')[1] || ''}</span>
+                    </div>
+                `;
             }
-            return `<span class="text-xs font-semibold inline-block py-1 px-3 uppercase rounded-full text-white ${colorClass}">${difficulty}</span>`;
+            return `<span class="text-sm font-medium text-green-600 dark:text-green-400">${difficulty}</span>`;
         }
 
-        /**
-         * 指定されたインデックスの問題を画面に読み込む
-         * @param {number} index - questions配列のインデックス
-         */
-        function loadQuestion(index) {
-            if (index >= questions.length || loadedQuestions.has(index)) {
-                return;
-            }
+        /** 問題をHTMLに描画する */
+        function renderProblem(problem) {
+            const choicesHTML = problem.choices.map(choice => 
+                `<div class="p-3 rounded-lg bg-white/40 dark:bg-gray-800/40 border border-transparent">${choice}</div>`
+            ).join('');
 
-            const q = questions[index];
-            loadedQuestions.add(index);
+            const problemHTML = `
+                <div id="problem-${problem.id}" class="glass-morphism rounded-2xl p-6 mb-6">
+                    <div class="flex justify-between items-start mb-4">
+                        <h2 class="text-lg font-bold text-gray-800 dark:text-white">${problem.number}</h2>
+                        <div>${formatDifficulty(problem.difficulty)}</div>
+                    </div>
+                    <p class="mb-6 leading-relaxed">${problem.question}</p>
+                    <div class="space-y-3 mb-6">${choicesHTML}</div>
+                    
+                    <button data-answer-id="${problem.id}" class="show-answer-button w-full px-6 py-3 rounded-xl bg-blue-500 text-white font-bold hover:bg-blue-600 transition-all duration-300 transform hover:scale-105 shadow-lg">
+                        回答を表示する
+                    </button>
 
-            const questionElement = document.createElement('div');
-            questionElement.id = `question-${q.id}`;
-            questionElement.className = 'glassmorphism rounded-2xl p-6 mb-8 shadow-lg border-gray-700';
-            
-            // 問題文と選択肢のHTML
-            let questionHTML = `
-                <div class="flex justify-between items-start mb-4">
-                    <h2 class="text-xl font-bold text-blue-300">問題 ${q.id}</h2>
-                    ${getDifficultyBadge(q.difficulty)}
-                </div>
-                <p class="text-gray-200 leading-relaxed whitespace-pre-wrap mb-6">${q.questionText}</p>
-                <div class="space-y-3 mb-6">
-                    ${q.choices.map(choice => `<div class="bg-gray-800 p-3 rounded-lg hover:bg-gray-700 transition-colors">${choice}</div>`).join('')}
-                </div>
-                <button class="show-answer-btn w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg transition-transform transform hover:scale-105" data-question-id="${q.id}">
-                    回答を表示する
-                </button>
-                <div id="answer-section-${q.id}" class="hidden mt-6"></div>
-            `;
-            
-            questionElement.innerHTML = questionHTML;
-            questionsContainer.appendChild(questionElement);
-        }
-
-        /**
-         * 回答と解説を表示する
-         * @param {number} questionId - 問題ID
-         */
-        function showAnswer(questionId) {
-            const q = questions.find(q => q.id === questionId);
-            if (!q) return;
-
-            const answerSection = document.getElementById(`answer-section-${q.id}`);
-            if (answerSection.classList.contains('hidden')) {
-                answerSection.innerHTML = `
-                    <div class="border-t border-gray-700 pt-6">
-                        <h3 class="text-lg font-bold text-green-400 mb-2">正解： ${q.answer}</h3>
-                        <p class="text-gray-300 leading-relaxed whitespace-pre-wrap">${q.explanation}</p>
+                    <div id="answer-content-${problem.id}" class="hidden mt-6 pt-6 border-t border-white/20 dark:border-gray-700/50">
+                        <div class="prose prose-sm dark:prose-invert max-w-none">${problem.explanation}</div>
                         
-                        <div class="flex items-center justify-center space-x-4 mt-6 pt-4 border-t border-gray-700">
-                            <button title="良い解説" class="feedback-icon-btn"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 18.333V9a2 2 0 012-2h4V3a1 1 0 011-1z"/></svg></button>
-                            <button title="悪い解説" class="feedback-icon-btn"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14H5.236a2 2 0 01-1.789-2.894l3.5-7A2 2 0 018.738 3h4.017c.163 0 .326.02.485.06L17 5.667V15a2 2 0 01-2 2h-4v4a1 1 0 01-1 1z"/></svg></button>
-                            <button title="共有する" class="feedback-icon-btn"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12s-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.368a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z"/></svg></button>
-                            <button title="修正を依頼する" class="request-fix-btn feedback-icon-btn" data-question-id="${q.id}"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg></button>
+                        <div class="mt-8">
+                            <div class="relative p-4 rounded-lg bg-blue-50 dark:bg-gray-700 animate-pulse-slow">
+                                <p class="text-center text-sm font-semibold text-blue-800 dark:text-blue-200">解説文章についてご意見をお聞かせください！</p>
+                                <!-- 吹き出しのしっぽ -->
+                                <div class="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-8 border-transparent border-t-blue-50 dark:border-t-gray-700"></div>
+                            </div>
+                            <div class="flex justify-around items-center mt-8 text-gray-600 dark:text-gray-400">
+                                <button class="feedback-icon" data-feedback="good" aria-label="役に立った">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" viewBox="0 0 20 20" fill="currentColor"><path d="M2 10.5a1.5 1.5 0 113 0v6a1.5 1.5 0 01-3 0v-6zM6 10.333v5.43a2 2 0 001.106 1.79l.05.025A4 4 0 008.943 18h5.416a2 2 0 001.962-1.608l1.2-6A2 2 0 0015.562 8H12V4a2 2 0 00-2-2 1 1 0 00-1 1v.667a4 4 0 01-.8 2.4L6.8 7.933a4 4 0 00-.8 2.4z" /></svg>
+                                </button>
+                                <button class="feedback-icon" data-feedback="bad" aria-label="役に立たなかった">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" viewBox="0 0 20 20" fill="currentColor"><path d="M18 9.5a1.5 1.5 0 11-3 0v-6a1.5 1.5 0 013 0v6zM14 9.667v-5.43a2 2 0 00-1.106-1.79l-.05-.025A4 4 0 0011.057 2H5.642a2 2 0 00-1.962 1.608l-1.2 6A2 2 0 004.438 12H8v4a2 2 0 002 2 1 1 0 001-1v-.667a4 4 0 01.8-2.4l1.2-2.4A4 4 0 0014 9.667z" /></svg>
+                                </button>
+                                <button class="feedback-icon" data-feedback="share" aria-label="共有する">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" viewBox="0 0 20 20" fill="currentColor"><path d="M15 8a3 3 0 10-2.977-2.63l-4.94 2.47a3 3 0 100 4.319l4.94 2.47a3 3 0 10.895-1.789l-4.94-2.47a3.027 3.027 0 000-.74l4.94-2.47C13.456 7.68 14.19 8 15 8z" /></svg>
+                                </button>
+                                <button class="feedback-icon" data-feedback="request-edit" aria-label="修正を依頼する">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" viewBox="0 0 20 20" fill="currentColor">
+                                        <path d="M17.414 2.586a2 2 0 00-2.828 0l-9.086 9.086a2 2 0 00-.516.879l-1.32 4.243a1 1 0 001.263 1.263l4.243-1.32a2 2 0 00.879-.516l9.086-9.086a2 2 0 000-2.828zm-2.121 1.415l2.121 2.121-1.415 1.415-2.121-2.121 1.415-1.415zm-2.829 2.829l2.121 2.121-7.086 7.086-2.121-2.121 7.086-7.086z"/>
+                                    </svg>
+                                </button>
+                            </div>
                         </div>
                     </div>
-                    ${(currentQuestionIndex < questions.length - 1) ? 
-                        `<button class="next-question-btn w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-lg transition-transform transform hover:scale-105 mt-6">次の問題へ</button>` :
-                        `<p class="text-center mt-8 font-bold text-lg text-yellow-400">全ての問題が終了しました！</p>`
-                    }
-                `;
-                answerSection.classList.remove('hidden');
+                </div>
+            `;
+            problemContainer.insertAdjacentHTML('beforeend', problemHTML);
+        }
 
-                // Hide the "Show Answer" button
-                const showAnswerBtn = document.querySelector(`button.show-answer-btn[data-question-id="${q.id}"]`);
-                showAnswerBtn.style.display = 'none';
+        /** 次の問題を読み込む */
+        function loadNextProblem() {
+            if (currentProblemIndex < problems.length) {
+                renderProblem(problems[currentProblemIndex]);
+                currentProblemIndex++;
+                if (currentProblemIndex === problems.length) {
+                    // 全ての問題を表示したら「次の問題へ」ボタンを消す
+                    const nextButton = document.getElementById('next-problem-button');
+                    if(nextButton) nextButton.remove();
+                }
             }
         }
 
-        // --- Event Listeners ---
-        
-        document.addEventListener('DOMContentLoaded', () => {
-            loadQuestion(currentQuestionIndex);
-            
-            // Update modal info
-            document.getElementById('total-q-modal').textContent = questions.length;
-        });
-
-        questionsContainer.addEventListener('click', function(e) {
-            // "回答を表示する" button
-            if (e.target.classList.contains('show-answer-btn')) {
-                const questionId = parseInt(e.target.dataset.questionId);
-                showAnswer(questionId);
+        /** 「次の問題へ」ボタンを追加 */
+        function addNextProblemButton() {
+            if (document.getElementById('next-problem-button')) return; // 既に存在する場合は追加しない
+            if (currentProblemIndex < problems.length) {
+                const buttonHTML = `<button id="next-problem-button" class="w-full mt-4 px-6 py-3 rounded-xl bg-gray-700 text-white font-bold hover:bg-gray-600 transition-colors shadow-md">次の問題へ進む</button>`;
+                problemContainer.insertAdjacentHTML('afterend', buttonHTML);
+                document.getElementById('next-problem-button').addEventListener('click', () => {
+                    loadNextProblem();
+                    setTimeout(() => {
+                        window.scrollTo({
+                            top: document.body.scrollHeight,
+                            behavior: 'smooth'
+                        });
+                    }, 100);
+                });
             }
-            
-            // "次の問題へ" button
-            if (e.target.classList.contains('next-question-btn')) {
-                currentQuestionIndex++;
-                loadQuestion(currentQuestionIndex);
-                setTimeout(() => {
-                    const nextQuestionElement = document.getElementById(`question-${questions[currentQuestionIndex].id}`);
-                    nextQuestionElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                }, 100);
-            }
+        }
 
-            // "修正を依頼する" button
-            if (e.target.closest('.request-fix-btn')) {
-                activeFeedbackModalQuestionId = parseInt(e.target.closest('.request-fix-btn').dataset.questionId);
-                feedbackModal.classList.remove('hidden');
-            }
-            
-            // Feedback icon buttons (like, dislike, share)
-            if (e.target.closest('.feedback-icon-btn') && !e.target.closest('.request-fix-btn')) {
-                 const btn = e.target.closest('.feedback-icon-btn');
-                 btn.classList.toggle('text-blue-400');
-            }
-        });
+        /** Toast通知を表示 */
+        function showToast(message) {
+            const toast = document.createElement('div');
+            toast.className = 'glass-morphism rounded-xl p-4 text-sm font-semibold text-gray-800 dark:text-white toast-in';
+            toast.textContent = message;
+            toastContainer.appendChild(toast);
 
-        // Scroll to bottom button
-        window.addEventListener('scroll', () => {
-            if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 200) {
-                scrollToBottomBtn.classList.add('opacity-0');
-            } else {
-                scrollToBottomBtn.classList.remove('opacity-0');
-            }
-        });
-
-        scrollToBottomBtn.addEventListener('click', () => {
-            window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
-        });
-
-        // Settings Modal
-        settingsBtn.addEventListener('click', () => {
-            document.getElementById('current-q-modal').textContent = currentQuestionIndex + 1;
-            settingsModal.classList.remove('hidden');
-        });
-        closeSettingsModalBtn.addEventListener('click', () => {
-            settingsModal.classList.add('hidden');
-        });
-        settingsModal.addEventListener('click', (e) => {
-            if (e.target === settingsModal) {
-                settingsModal.classList.add('hidden');
-            }
-        });
-
-        // Feedback Modal
-        closeFeedbackModalBtn.addEventListener('click', () => {
-            feedbackModal.classList.add('hidden');
-        });
-        submitFeedbackBtn.addEventListener('click', () => {
-            console.log(`Feedback for question ${activeFeedbackModalQuestionId}:`);
-            console.log(document.getElementById('other-feedback').value);
-            document.querySelectorAll('.feedback-option-btn.active').forEach(btn => console.log(btn.textContent));
-            
-            feedbackModal.classList.add('hidden');
-            
-            // Show toast
-            toastMessage.classList.remove('opacity-0');
             setTimeout(() => {
-                toastMessage.classList.add('opacity-0');
-            }, 2000);
-            
-            // Reset feedback form
-            document.getElementById('other-feedback').value = '';
-            document.querySelectorAll('.feedback-option-btn.active').forEach(btn => btn.classList.remove('active', 'bg-blue-600'));
+                toast.classList.remove('toast-in');
+                toast.classList.add('toast-out');
+                toast.addEventListener('animationend', () => toast.remove());
+            }, 3000);
+        }
+        
+        /** アイコンアニメーション */
+        function animateIcon(icon) {
+            icon.classList.add('animate-pop');
+            icon.addEventListener('animationend', () => {
+                icon.classList.remove('animate-pop');
+            }, { once: true });
+        }
+
+
+        // --- イベントリスナー ---
+
+        // モーダル開閉
+        settingsButton.addEventListener('click', () => {
+            answeredCountEl.textContent = `${answeredCount}問`;
+            totalCountEl.textContent = `${problems.length}問`;
+            settingsModal.classList.remove('hidden');
+            settingsModal.classList.add('flex');
         });
-        feedbackModal.addEventListener('click', (e) => {
-            if (e.target === feedbackModal) {
-                feedbackModal.classList.add('hidden');
-            }
+        closeSettingsModal.addEventListener('click', () => {
+            settingsModal.classList.add('hidden');
+            settingsModal.classList.remove('flex');
         });
         
-        feedbackModal.addEventListener('click', (e) => {
-            if (e.target.classList.contains('feedback-option-btn')) {
-                e.target.classList.toggle('active');
-                e.target.classList.toggle('bg-blue-600');
-            }
+        closeFeedbackModal.addEventListener('click', () => {
+            feedbackModal.classList.add('hidden');
+            feedbackModal.classList.remove('flex');
         });
 
-        // Add custom styles for feedback buttons
-        const styleSheet = document.createElement("style");
-        styleSheet.type = "text/css";
-        styleSheet.innerText = `
-            .feedback-option-btn {
-                background-color: #374151; /* bg-gray-700 */
-                border: 1px solid #4B5563; /* border-gray-600 */
+        submitFeedbackButton.addEventListener('click', () => {
+            feedbackModal.classList.add('hidden');
+            feedbackModal.classList.remove('flex');
+            showToast('フィードバックを送信しました。ありがとうございます！');
+        });
+        
+        // 修正依頼モーダル内のボタン
+        feedbackModal.querySelectorAll('.feedback-option-button').forEach(button => {
+            button.style.cssText = `
                 padding: 0.75rem;
                 border-radius: 0.5rem;
-                transition: all 0.2s ease-in-out;
-            }
-            .feedback-option-btn:hover {
-                background-color: #4B5563; /* bg-gray-600 */
-                border-color: #6B7280; /* border-gray-500 */
-            }
-            .feedback-option-btn.active {
-                background-color: #2563EB; /* bg-blue-600 */
-                border-color: #1D4ED8; /* border-blue-700 */
-                color: white;
-            }
-            .feedback-icon-btn {
-                color: #9CA3AF; /* text-gray-400 */
-                transition: color 0.2s, transform 0.2s;
-            }
-            .feedback-icon-btn:hover {
-                color: #E5E7EB; /* text-gray-200 */
-                transform: scale(1.1);
-            }
-            .feedback-icon-btn.text-blue-400 {
-                color: #60A5FA; /* text-blue-400 */
-            }
-        `;
-        document.head.appendChild(styleSheet);
+                background-color: rgba(255, 255, 255, 0.4);
+                border: 1px solid rgba(255, 255, 255, 0.2);
+                transition: background-color 0.2s;
+                font-size: 0.875rem;
+            `;
+            button.addEventListener('mouseover', () => button.style.backgroundColor = 'rgba(255, 255, 255, 0.6)');
+            button.addEventListener('mouseout', () => button.style.backgroundColor = 'rgba(255, 255, 255, 0.4)');
+        });
 
+
+        // イベントデリゲーションで動的に追加される要素に対応
+        document.body.addEventListener('click', (e) => {
+            // 回答表示ボタン
+            const showAnswerBtn = e.target.closest('.show-answer-button');
+            if (showAnswerBtn) {
+                const problemId = showAnswerBtn.dataset.answerId;
+                const answerContent = document.getElementById(`answer-content-${problemId}`);
+                if (answerContent) {
+                    const isHidden = answerContent.classList.contains('hidden');
+                    if (isHidden) {
+                        answerContent.classList.remove('hidden');
+                        showAnswerBtn.textContent = '回答を隠す';
+                        if (!showAnswerBtn.dataset.answered) {
+                            answeredCount++;
+                            showAnswerBtn.dataset.answered = 'true';
+                        }
+                    } else {
+                        answerContent.classList.add('hidden');
+                        showAnswerBtn.textContent = '回答を表示する';
+                    }
+                }
+            }
+
+            // フィードバックアイコン
+            const feedbackIcon = e.target.closest('.feedback-icon');
+            if (feedbackIcon) {
+                const feedbackType = feedbackIcon.dataset.feedback;
+                animateIcon(feedbackIcon);
+                // すでにクリック済みのアイコンの場合は、classを削除してreturn
+                if (feedbackIcon.classList.contains('clicked')) {
+                    feedbackIcon.classList.remove('clicked');
+                    return;
+                }
+                // クリックされたアイコンにクラスを追加
+                feedbackIcon.classList.add('clicked');
+                // setTimeout(() => feedbackIcon.classList.remove('clicked'), 4000); // アニメーション後にクラスを削除
+
+                switch(feedbackType) {
+                    case 'good':
+                        showToast('👍 ご意見ありがとうございます！');
+                        break;
+                    case 'bad':
+                        showToast('👎 改善に努めます！');
+                        break;
+                    case 'share':
+                        showToast('🔗 共有リンクをコピーしました。');
+                        // navigator.clipboard.writeText(window.location.href); // iframe内では動作しない可能性
+                        break;
+                    case 'request-edit':
+                        feedbackModal.classList.remove('hidden');
+                        feedbackModal.classList.add('flex');
+                        break;
+                }
+            }
+        });
+
+        // 一番下へスクロール
+        scrollDownButton.addEventListener('click', () => {
+            window.scrollTo({
+                top: document.body.scrollHeight,
+                behavior: 'smooth'
+            });
+        });
+
+        // --- 初期化 ---
+        loadNextProblem(); // 最初の問題を読み込む
+        addNextProblemButton(); // 「次の問題へ」ボタンを追加
+    });
     </script>
 </body>
 </html>
