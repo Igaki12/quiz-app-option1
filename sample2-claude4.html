@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medteria 問題集テスト</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    animation: {
+                        'pulse-glow': 'pulse-glow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'bounce-light': 'bounce-light 1s infinite',
+                        'slide-up': 'slide-up 0.3s ease-out',
+                        'fade-in': 'fade-in 0.5s ease-out',
+                        'scale-in': 'scale-in 0.2s ease-out'
+                    },
+                    keyframes: {
+                        'pulse-glow': {
+                            '0%, 100%': { opacity: '1', transform: 'scale(1)' },
+                            '50%': { opacity: '0.8', transform: 'scale(1.05)' }
+                        },
+                        'bounce-light': {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-10px)' }
+                        },
+                        'slide-up': {
+                            '0%': { transform: 'translateY(20px)', opacity: '0' },
+                            '100%': { transform: 'translateY(0)', opacity: '1' }
+                        },
+                        'fade-in': {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' }
+                        },
+                        'scale-in': {
+                            '0%': { transform: 'scale(0.95)', opacity: '0' },
+                            '100%': { transform: 'scale(1)', opacity: '1' }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .glass {
+            background: rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+        }
+        .glass-dark {
+            background: rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .btn-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+        .progress-bar {
+            transition: width 0.3s ease-in-out;
+        }
+    </style>
+</head>
+<body class="font-sans">
+    <!-- Header -->
+    <header class="glass sticky top-0 z-50 p-4 shadow-lg">
+        <div class="flex items-center justify-between max-w-4xl mx-auto">
+            <h1 class="text-xl font-bold text-white">Medteria 問題集テスト</h1>
+            <div class="flex space-x-3">
+                <button class="p-2 text-white hover:bg-white hover:bg-opacity-20 rounded-full transition-all duration-300 btn-hover">
+                    <i class="fas fa-search"></i>
+                </button>
+                <button id="settingsBtn" class="p-2 text-white hover:bg-white hover:bg-opacity-20 rounded-full transition-all duration-300 btn-hover">
+                    <i class="fas fa-cog animate-pulse-glow"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-4xl mx-auto p-4 pb-20">
+        <div id="questionsContainer" class="space-y-8">
+            <!-- Questions will be loaded here -->
+        </div>
+    </main>
+
+    <!-- Scroll to Bottom Button -->
+    <button id="scrollBottomBtn" class="fixed bottom-20 right-4 p-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 btn-hover animate-bounce-light z-40">
+        <i class="fas fa-arrow-down"></i>
+    </button>
+
+    <!-- Settings Modal -->
+    <div id="settingsModal" class="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm hidden z-50 animate-fade-in">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="glass rounded-2xl p-6 max-w-md w-full animate-scale-in">
+                <h2 class="text-xl font-bold text-white mb-4">解答状況</h2>
+                <div class="space-y-4">
+                    <div class="text-white">
+                        <p>進捗状況: <span id="progressText">1/4問</span></p>
+                        <div class="w-full bg-gray-300 bg-opacity-30 rounded-full h-2 mt-2">
+                            <div id="progressBar" class="bg-gradient-to-r from-green-400 to-blue-500 h-2 rounded-full progress-bar" style="width: 25%"></div>
+                        </div>
+                    </div>
+                    <div class="flex space-x-3">
+                        <button id="saveExitBtn" class="flex-1 bg-gradient-to-r from-green-400 to-green-600 text-white py-2 px-4 rounded-lg hover:from-green-500 hover:to-green-700 transition-all duration-300 btn-hover">
+                            保存して終了
+                        </button>
+                        <button id="closeSettingsBtn" class="flex-1 bg-gradient-to-r from-gray-400 to-gray-600 text-white py-2 px-4 rounded-lg hover:from-gray-500 hover:to-gray-700 transition-all duration-300 btn-hover">
+                            閉じる
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Share Modal -->
+    <div id="shareModal" class="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm hidden z-50 animate-fade-in">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="glass rounded-2xl p-6 max-w-md w-full animate-scale-in">
+                <h2 class="text-xl font-bold text-white mb-4">問題を共有</h2>
+                <div class="grid grid-cols-2 gap-4">
+                    <button class="bg-blue-500 hover:bg-blue-600 text-white py-3 px-4 rounded-lg transition-all duration-300 btn-hover">
+                        <i class="fab fa-twitter mr-2"></i>Twitter
+                    </button>
+                    <button class="bg-blue-700 hover:bg-blue-800 text-white py-3 px-4 rounded-lg transition-all duration-300 btn-hover">
+                        <i class="fab fa-facebook mr-2"></i>Facebook
+                    </button>
+                    <button class="bg-green-500 hover:bg-green-600 text-white py-3 px-4 rounded-lg transition-all duration-300 btn-hover">
+                        <i class="fab fa-line mr-2"></i>LINE
+                    </button>
+                    <button class="bg-gray-500 hover:bg-gray-600 text-white py-3 px-4 rounded-lg transition-all duration-300 btn-hover">
+                        <i class="fas fa-link mr-2"></i>URL
+                    </button>
+                </div>
+                <button id="closeShareBtn" class="w-full mt-4 bg-gradient-to-r from-gray-400 to-gray-600 text-white py-2 px-4 rounded-lg hover:from-gray-500 hover:to-gray-700 transition-all duration-300 btn-hover">
+                    閉じる
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Feedback Modal -->
+    <div id="feedbackModal" class="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm hidden z-50 animate-fade-in">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="glass rounded-2xl p-6 max-w-md w-full animate-scale-in">
+                <h2 class="text-xl font-bold text-white mb-4">修正を依頼</h2>
+                <div class="space-y-3">
+                    <button class="w-full bg-yellow-500 hover:bg-yellow-600 text-white py-2 px-4 rounded-lg transition-all duration-300 btn-hover">
+                        文章が難しすぎる
+                    </button>
+                    <button class="w-full bg-orange-500 hover:bg-orange-600 text-white py-2 px-4 rounded-lg transition-all duration-300 btn-hover">
+                        長すぎる
+                    </button>
+                    <button class="w-full bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg transition-all duration-300 btn-hover">
+                        短すぎる
+                    </button>
+                    <button class="w-full bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded-lg transition-all duration-300 btn-hover">
+                        医学的に誤りがある
+                    </button>
+                    <div>
+                        <label class="block text-white text-sm mb-2">その他のご意見:</label>
+                        <textarea class="w-full p-3 rounded-lg bg-white bg-opacity-20 text-white placeholder-gray-300 border border-white border-opacity-30" rows="3" placeholder="詳細をお聞かせください..."></textarea>
+                    </div>
+                    <div class="flex space-x-3">
+                        <button class="flex-1 bg-gradient-to-r from-green-400 to-green-600 text-white py-2 px-4 rounded-lg hover:from-green-500 hover:to-green-700 transition-all duration-300 btn-hover">
+                            送信
+                        </button>
+                        <button id="closeFeedbackBtn" class="flex-1 bg-gradient-to-r from-gray-400 to-gray-600 text-white py-2 px-4 rounded-lg hover:from-gray-500 hover:to-gray-700 transition-all duration-300 btn-hover">
+                            閉じる
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="glass-dark mt-12 p-4 text-center">
+        <p class="text-white text-sm">© 2025 Medteria All rights reserved.</p>
+    </footer>
+
+    <script>
+        // Question data extracted from images
+        const questions = [
+            {
+                id: 1,
+                number: "問題1",
+                difficulty: "国家試験より易しい",
+                question: "インスリン分泌促進系に分類されるのはどれか。\na チアゾリジン薬\nb ビグアナイド薬\nc α-グルコシダーゼ阻害薬\nd DPP-4（dipeptidyl peptidase-4）阻害薬\ne SGLT2（sodium glucose cotransporter 2）阻害薬",
+                answer: "正解：d",
+                explanation: "本問は血糖降下薬の作用機序による分類を問う問題です。\n\n• a. チアゾリジン薬： PPARγを活性化し、インスリン抵抗性を改善します。インスリン分泌は促進しません。\n\n• b. ビグアナイド薬： 主に肝臓での糖新生を抑制し、インスリン抵抗性を改善します。インスリン分泌は促進しません。\n\n• c. α-グルコシダーゼ阻害薬： 腸管での二糖類の分解を阻害し、糖の吸収を遅らせます。インスリン分泌は促進しません。\n\n• d. DPP-4阻害薬： インクレチン（GLP-1など）の分解を阻害することで血中濃度を高め、血糖依存的にインスリン分泌を促進し、グルカゴン分泌を抑制します。これが正解です。\n\n• e. SGLT2阻害薬： 腎臓の近位尿細管でのブドウ糖再吸収を抑制し、尿中への糖排泄を促進します。インスリン非依存的に血糖を低下させます。"
+            },
+            {
+                id: 2,
+                number: "問題2",
+                difficulty: "国家試験より易しい",
+                question: "ツベルクリン反応に関連する免疫反応はどれか。\na Ⅰ型アレルギー\nb Ⅱ型アレルギー\nc Ⅲ型アレルギー\nd Ⅳ型アレルギー\ne Ⅴ型アレルギー",
+                answer: "正解：d",
+                explanation: "ツベルクリン反応は、結核菌に対する細胞性免疫の有無を調べる皮内反応であり、Gell-Coombs分類における**IV型アレルギー（遅延型アレルギー）**の代表例です。抗原提示細胞によって提示された結核菌抗原に対し、感作T細胞が反応し、サイトカインを放出してマクロファージなどを活性化させることで、48〜72時間後に発赤・硬結がピークに達します。\n\n• I型（即時型）： IgEが関与。花粉症、気管支喘息、アナフィラキシーなど。\n\n• II型（細胞障害型）： IgG, IgMが自己の細胞表面抗原に結合し、補体や食細胞を介して細胞を破壊。自己免疫性溶血性貧血、血小板減少症など。\n\n• III型（免疫複合体型）： 抗原と抗体（IgG, IgM）の免疫複合体が組織に沈着し、補体を活性化して炎症を引き起こす。ループス腎炎、血清病など。"
+            },
+            {
+                id: 3,
+                number: "問題3",
+                difficulty: "国家試験より易しい",
+                question: "Which contributes to coordinated movement?\na Frontal lobe\nb Parietal lobe\nc Occipital lobe\nd Temporal lobe\ne Cerebellum",
+                answer: "正解：e",
+                explanation: "協調運動（coordinated movement）は、複数の筋肉の活動を時間的・空間的に適切に統合し、滑らかで正確な運動を実現する機能です。この中枢は**小脳（Cerebellum）**です。小脳が障害されると、運動失調（ataxia）をきたし、測定障害（dysmetria）や協調運動反復不能（adiadochokinesis）などがみられます。\n\n• a. 前頭葉： 思考、意思決定、運動の企画（運動野）。\n\n• b. 頭頂葉： 感覚情報の統合（体性感覚野）。\n\n• c. 後頭葉： 視覚情報の処理（視覚野）。\n\n• d. 側頭葉： 聴覚、記憶、言語理解（ウェルニッケ野）。"
+            },
+            {
+                id: 4,
+                number: "問題28",
+                difficulty: "国家試験レベル",
+                question: "35歳の男性。左顎下部の腫脹を主訴に来院した。数か月前より時々起こる左顎下部の腫脹に気付いていたが経過をみていた。最近食後に左顎下部腫脹が頻繁に起こり、数時間で腫脹は改善する。腫脹時は軽度の痛みを伴うため来院した。身長174cm、体重70.5kg。体温36.4℃。左顎下腺は右よりやや大きく、全体的に硬く触知した。触診により軽度の圧痛を伴った。血液所見：赤血球515万、Hb 15.2 g/dl、Ht 44.5%、白血球8,600、血小板19.8万。血液生化学所見：総蛋白7.5 g/dl、アルブミン4.2 g/dl、総ビリルビン1.0 mg/dl、AST 19 U/L、ALT 24 U/L、LD 173 U/L（基準120～245）、ALP 67 U/L（基準38～113）、アミラーゼ155 U/L（基準37～160）、CK 110 U/L（基準30～140）、尿素窒素19 mg/dl、クレアチニン0.69 mg/dl。CRP 1.2 mg/dl。\n\n確定診断に必要な検査はどれか。2つ選べ。\na 頸部CT\nb IgG4測定\nc 抗SS-A抗体測定\nd 口腔底の双手診\ne 穿刺吸引細胞診",
+                answer: "正解: a, d",
+                explanation: "食事のたびに繰り返す顎下部の腫脹と疼痛は、唾石症による唾液のうっ滞（唾仙痛）を強く示唆します。特に顎下腺に好発します。\n\n• a. 頸部CT: 唾石の存在部位や大きさ、顎下腺の腫脹や炎症の程度を評価するために非常に有用です。特に石灰化の程度が低い唾石の描出に優れます。\n\n• d. 口腔底の双手診: 口腔内からと口腔外からの両方から触診することで、顎下腺管内の唾石を触知できることがあります。基本的な診察手技として重要です。\n\n• b. IgG4測定やc. 抗SS-A抗体測定は、それぞれIgG4関連疾患やシェーグレン症候群といった自己免疫性唾液腺炎を疑う場合に行いますが、本症例のように食事と関連した間欠的な症状からは、まず唾石症を考えます。\n\n• e. 穿刺吸引細胞診は、腫瘍性病変が疑われる場合に行いますが、第一選択の検査ではありません。"
+            }
+        ];
+
+        let currentQuestionIndex = 0;
+        let votingData = {};
+
+        // Initialize voting data
+        questions.forEach(q => {
+            votingData[q.id] = { good: 0, bad: 0, total: 0 };
+        });
+
+        // Load first question
+        loadQuestion(0);
+
+        // Event listeners
+        document.getElementById('settingsBtn').addEventListener('click', () => {
+            document.getElementById('settingsModal').classList.remove('hidden');
+            updateProgress();
+        });
+
+        document.getElementById('closeSettingsBtn').addEventListener('click', () => {
+            document.getElementById('settingsModal').classList.add('hidden');
+        });
+
+        document.getElementById('saveExitBtn').addEventListener('click', () => {
+            alert('データを保存しました');
+            document.getElementById('settingsModal').classList.add('hidden');
+        });
+
+        document.getElementById('closeShareBtn').addEventListener('click', () => {
+            document.getElementById('shareModal').classList.add('hidden');
+        });
+
+        document.getElementById('closeFeedbackBtn').addEventListener('click', () => {
+            document.getElementById('feedbackModal').classList.add('hidden');
+        });
+
+        document.getElementById('scrollBottomBtn').addEventListener('click', () => {
+            window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+        });
+
+        function loadQuestion(index) {
+            if (index >= questions.length) return;
+
+            const question = questions[index];
+            const questionHTML = `
+                <div class="glass rounded-2xl p-6 animate-slide-up">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center space-x-3">
+                            <span class="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-3 py-1 rounded-full text-sm font-bold">
+                                ${question.number}
+                            </span>
+                            <span class="bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-3 py-1 rounded-full text-xs">
+                                ${question.difficulty}
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <div class="text-white mb-6 leading-relaxed whitespace-pre-line">
+                        ${question.question}
+                    </div>
+                    
+                    <button onclick="showAnswer(${question.id})" id="showAnswerBtn-${question.id}" class="w-full bg-gradient-to-r from-green-400 to-blue-500 hover:from-green-500 hover:to-blue-600 text-white font-bold py-3 px-6 rounded-lg transition-all duration-300 btn-hover mb-4">
+                        回答を表示する
+                    </button>
+                    
+                    <div id="answer-${question.id}" class="hidden animate-fade-in">
+                        <div class="glass-dark rounded-xl p-4 mb-4">
+                            <div class="text-green-400 font-bold mb-2">${question.answer}</div>
+                            <div class="text-white leading-relaxed whitespace-pre-line">${question.explanation}</div>
+                        </div>
+                        
+                        <div class="flex space-x-2 mb-4">
+                            <button onclick="vote(${question.id}, 'good')" class="flex-1 bg-gradient-to-r from-green-400 to-green-600 hover:from-green-500 hover:to-green-700 text-white py-2 px-4 rounded-lg transition-all duration-300 btn-hover">
+                                <i class="fas fa-thumbs-up mr-2"></i>Good
+                            </button>
+                            <button onclick="vote(${question.id}, 'bad')" class="flex-1 bg-gradient-to-r from-red-400 to-red-600 hover:from-red-500 hover:to-red-700 text-white py-2 px-4 rounded-lg transition-all duration-300 btn-hover">
+                                <i class="fas fa-thumbs-down mr-2"></i>Bad
+                            </button>
+                            <button onclick="openShareModal()" class="flex-1 bg-gradient-to-r from-blue-400 to-blue-600 hover:from-blue-500 hover:to-blue-700 text-white py-2 px-4 rounded-lg transition-all duration-300 btn-hover">
+                                <i class="fas fa-share mr-2"></i>共有
+                            </button>
+                            <button onclick="openFeedbackModal()" class="flex-1 bg-gradient-to-r from-purple-400 to-purple-600 hover:from-purple-500 hover:to-purple-700 text-white py-2 px-4 rounded-lg transition-all duration-300 btn-hover">
+                                <i class="fas fa-edit mr-2"></i>修正依頼
+                            </button>
+                        </div>
+                        
+                        <div id="voting-results-${question.id}" class="hidden mb-4">
+                            <div class="glass-dark rounded-lg p-4">
+                                <h4 class="text-white font-bold mb-2">評価結果</h4>
+                                <div class="space-y-2">
+                                    <div class="flex items-center">
+                                        <span class="text-green-400 w-12 text-sm">Good</span>
+                                        <div class="flex-1 bg-gray-300 bg-opacity-30 rounded-full h-4 mx-2">
+                                            <div id="good-bar-${question.id}" class="bg-gradient-to-r from-green-400 to-green-500 h-4 rounded-full progress-bar" style="width: 0%"></div>
+                                        </div>
+                                        <span id="good-count-${question.id}" class="text-white text-sm w-8">0</span>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <span class="text-red-400 w-12 text-sm">Bad</span>
+                                        <div class="flex-1 bg-gray-300 bg-opacity-30 rounded-full h-4 mx-2">
+                                            <div id="bad-bar-${question.id}" class="bg-gradient-to-r from-red-400 to-red-500 h-4 rounded-full progress-bar" style="width: 0%"></div>
+                                        </div>
+                                        <span id="bad-count-${question.id}" class="text-white text-sm w-8">0</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        ${index < questions.length - 1 ? `
+                            <button onclick="loadNextQuestion()" class="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-bold py-3 px-6 rounded-lg transition-all duration-300 btn-hover">
+                                次の問題へ <i class="fas fa-arrow-right ml-2"></i>
+                            </button>
+                        ` : `
+                            <div class="text-center p-4 glass-dark rounded-lg">
+                                <p class="text-white font-bold">お疲れ様でした！全問完了です🎉</p>
+                            </div>
+                        `}
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('questionsContainer').insertAdjacentHTML('beforeend', questionHTML);
+        }
+
+        function showAnswer(questionId) {
+            document.getElementById(`answer-${questionId}`).classList.remove('hidden');
+            document.getElementById(`showAnswerBtn-${questionId}`).style.display = 'none';
+        }
+
+        function vote(questionId, type) {
+            votingData[questionId][type]++;
+            votingData[questionId].total++;
+            
+            updateVotingDisplay(questionId);
+            document.getElementById(`voting-results-${questionId}`).classList.remove('hidden');
+        }
+
+        function updateVotingDisplay(questionId) {
+            const data = votingData[questionId];
+            const goodPercentage = data.total > 0 ? (data.good / data.total) * 100 : 0;
+            const badPercentage = data.total > 0 ? (data.bad / data.total) * 100 : 0;
+
+            document.getElementById(`good-bar-${questionId}`).style.width = `${goodPercentage}%`;
+            document.getElementById(`bad-bar-${questionId}`).style.width = `${badPercentage}%`;
+            document.getElementById(`good-count-${questionId}`).textContent = data.good;
+            document.getElementById(`bad-count-${questionId}`).textContent = data.bad;
+        }
+
+        function loadNextQuestion() {
+            currentQuestionIndex++;
+            loadQuestion(currentQuestionIndex);
+            setTimeout(() => {
+                window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+            }, 100);
+        }
+
+        function openShareModal() {
+            document.getElementById('shareModal').classList.remove('hidden');
+        }
+
+        function openFeedbackModal() {
+            document.getElementById('feedbackModal').classList.remove('hidden');
+        }
+
+        function updateProgress() {
+            const answeredQuestions = document.querySelectorAll('[id^="answer-"]:not(.hidden)').length;
+            const totalQuestions = questions.length;
+            const percentage = (answeredQuestions / totalQuestions) * 100;
+            
+            document.getElementById('progressText').textContent = `${answeredQuestions}/${totalQuestions}問`;
+            document.getElementById('progressBar').style.width = `${percentage}%`;
+        }
+
+        // Auto-hide scroll button when at bottom
+        window.addEventListener('scroll', () => {
+            const scrollBtn = document.getElementById('scrollBottomBtn');
+            if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 100) {
+                scrollBtn.style.opacity = '0.5';
+            } else {
+                scrollBtn.style.opacity = '1';
+            }
+        });
+    </script>
+</body>
+</html>
