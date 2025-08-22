@@ -125,11 +125,11 @@
                 </div>
 
                 <!-- 操作ボタン -->
-                <div class="flex flex-col gap-4">
-                    <button id="skip-btn" class="skip-btn w-full text-center py-3 px-4 rounded-lg font-semibold text-slate-700 transition-all duration-200 hidden">
+                <div class="flex flex-col sm:flex-row gap-4">
+                    <button id="skip-btn" class="skip-btn w-full sm:w-1/2 flex-1 text-center py-3 px-4 rounded-lg font-semibold text-slate-700 transition-all duration-200">
                         次の問題へ
                     </button>
-                    <button id="show-answer-btn" class="answer-btn w-full text-center py-3 px-4 rounded-lg font-semibold text-white transition-all duration-200 disabled:cursor-not-allowed">
+                    <button id="show-answer-btn" class="answer-btn w-full sm:w-1/2 flex-1 text-center py-3 px-4 rounded-lg font-semibold text-white transition-all duration-200 disabled:cursor-not-allowed">
                         解答する
                     </button>
                 </div>
@@ -340,8 +340,6 @@
             
             // 解説エリアを非表示
             explanationContainerEl.classList.add('hidden');
-            showAnswerBtn.classList.remove('hidden');
-            skipBtn.classList.add('hidden');
 
             // ボタンの状態を更新
             showAnswerBtn.disabled = true;
@@ -405,9 +403,6 @@
             correctAnswerTextEl.textContent = `正解: ${correctAnswers.join(', ').toUpperCase()}`;
             explanationTextEl.textContent = question.explanation;
             explanationContainerEl.classList.remove('hidden');
-            showAnswerBtn.classList.add('hidden');
-            skipBtn.classList.remove('hidden');
-            skipBtn.disabled = false;
             
             // 解説が表示されたら、その位置までスクロール
             explanationContainerEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
