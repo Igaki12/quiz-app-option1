@@ -124,15 +124,6 @@
                     <!-- JSで動的に生成 -->
                 </div>
 
-                <!-- あなたの解答表示エリア -->
-                <div id="your-answer-section" class="hidden mb-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg">
-                    <div class="flex items-center mb-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check-circle text-blue-600 mr-2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22,4 12,14.01 9,11.01"/></svg>
-                        <span class="font-semibold text-blue-700">あなたの解答：</span>
-                    </div>
-                    <div id="your-answer-display" class="text-blue-600 font-medium"></div>
-                </div>
-
                 <!-- 操作ボタン -->
                 <div class="flex flex-col gap-4">
                     <button id="skip-btn" class="skip-btn w-full text-center py-3 px-4 rounded-lg font-semibold text-slate-700 transition-all duration-200 hidden">
@@ -272,8 +263,6 @@
         const questionAnswerRateEl = document.getElementById('question-answer-rate');
         const questionTextEl = document.getElementById('question-text');
         const optionsContainerEl = document.getElementById('options-container');
-        const yourAnswerSectionEl = document.getElementById('your-answer-section');
-        const yourAnswerDisplayEl = document.getElementById('your-answer-display');
         const explanationContainerEl = document.getElementById('explanation-container');
         const correctAnswerTextEl = document.getElementById('correct-answer-text');
         const explanationTextEl = document.getElementById('explanation-text');
@@ -315,23 +304,6 @@
             window.history.pushState({path: url.href}, '', url.href);
         }
 
-        /** あなたの解答表示を更新する関数 */
-        function updateYourAnswerDisplay() {
-            if (selectedAnswers.length === 0) {
-                yourAnswerSectionEl.classList.add('hidden');
-                return;
-            }
-
-            const question = questions[currentQuestionIndex];
-            const selectedOptions = selectedAnswers.map(answerId => {
-                const option = question.options.find(opt => opt.id === answerId);
-                return `${answerId.toUpperCase()}. ${option.text}`;
-            });
-
-            yourAnswerDisplayEl.textContent = selectedOptions.join('、 ');
-            yourAnswerSectionEl.classList.remove('hidden');
-        }
-
         /** 問題を描画する関数 */
         function renderQuestion(index) {
             // 状態をリセット
@@ -368,7 +340,6 @@
             
             // 解説エリアを非表示
             explanationContainerEl.classList.add('hidden');
-            yourAnswerSectionEl.classList.add('hidden');
             showAnswerBtn.classList.remove('hidden');
             skipBtn.classList.add('hidden');
 
@@ -405,7 +376,6 @@
             }
 
             showAnswerBtn.disabled = selectedAnswers.length === 0;
-            updateYourAnswerDisplay();
         }
 
         /** 回答を表示する処理 */
